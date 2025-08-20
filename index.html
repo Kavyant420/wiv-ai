@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPT4Free - Free AI Chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .floating-shapes {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .shape-1 { top: 10%; left: 10%; animation-delay: 0s; }
+        .shape-2 { top: 20%; left: 80%; animation-delay: 5s; }
+        .shape-3 { top: 60%; left: 20%; animation-delay: 10s; }
+        .shape-4 { top: 80%; left: 70%; animation-delay: 15s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo .free {
+            color: #4ade80;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 3rem 0;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            color: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Chat Interface */
+        .chat-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        .chat-header {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .model-selector {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .model-selector:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .user .message-avatar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .ai .message-avatar {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+        }
+
+        .message-content {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 1rem 1.5rem;
+            color: white;
+            max-width: 70%;
+            backdrop-filter: blur(10px);
+        }
+
+        .user .message-content {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-input {
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .input-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .chat-input input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            padding: 1rem 1.5rem;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: #4ade80;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(74, 222, 128, 0.4);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Typing indicator */
+        .typing {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-style: italic;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            animation: typingDot 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typingDot {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+        }
+
+        /* Demo notice */
+        .demo-notice {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 15px;
+            padding: 1rem;
+            margin: 2rem 0;
+            color: white;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="floating-shapes shape-1"></div>
+        <div class="floating-shapes shape-2"></div>
+        <div class="floating-shapes shape-3"></div>
+        <div class="floating-shapes shape-4"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">GPT4<span class="free">Free</span></div>
+            <div class="status">
+                <span class="status-dot"></span>
+                <span>Online & Ready</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>Free AI Power<br>For Everyone</h1>
+            <p>Experience GPT-4 level AI models completely free. No API keys, no authentication, no limits.</p>
+        </section>
+
+        <!-- Features -->
+        <div class="features">
+            <div class="feature">
+                <span class="feature-icon">🚀</span>
+                <h3>No API Keys</h3>
+                <p>Start chatting immediately without any setup or registration</p>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">⚡</span>
+                <h3>Lightning Fast</h3>
+                <p>Optimized for speed with responses in seconds</p>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🔒</span>
+                <h3>Privacy First</h3>
+                <p>We don't store your conversations or sell your data</p>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🌐</span>
+                <h3>Open Source</h3>
+                <p>Community-driven and transparent development</p>
+            </div>
+        </div>
+
+        <!-- Integration Notice -->
+        <div class="demo-notice">
+            🚀 <strong>G4F Integration Ready:</strong> This interface can connect to your G4F backend. 
+            Make sure your Node.js server with G4F is running to enable real AI responses!
+        </div>
+
+        <!-- Chat Interface -->
+        <div class="chat-section">
+            <div class="chat-header">
+                <h2 class="chat-title">AI Chat</h2>
+                <select class="model-selector" id="modelSelector">
+                    <option value="gpt-4">GPT-4</option>
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                    <option value="claude">Claude</option>
+                    <option value="gemini">Gemini</option>
+                </select>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        Hello! I'm your GPT4Free assistant. How can I help you today? Ask me anything - no API keys required!
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input">
+                <div class="input-container">
+                    <input type="text" id="messageInput" placeholder="Type your message here..." maxlength="500">
+                </div>
+                <button class="send-btn" id="sendBtn">
+                    ➤
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class GPT4FreeChat {
+            constructor() {
+                this.messages = [];
+                this.isTyping = false;
+                this.initializeElements();
+                this.bindEvents();
+                this.addWelcomeMessage();
+            }
+
+            initializeElements() {
+                this.chatMessages = document.getElementById('chatMessages');
+                this.messageInput = document.getElementById('messageInput');
+                this.sendBtn = document.getElementById('sendBtn');
+                this.modelSelector = document.getElementById('modelSelector');
+            }
+
+            bindEvents() {
+                this.sendBtn.addEventListener('click', () => this.sendMessage());
+                this.messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                this.messageInput.addEventListener('input', () => {
+                    this.sendBtn.disabled = this.messageInput.value.trim().length === 0;
+                });
+
+                // Model selector change
+                this.modelSelector.addEventListener('change', () => {
+                    this.addSystemMessage(`Switched to ${this.modelSelector.value.toUpperCase()}`);
+                });
+            }
+
+            addWelcomeMessage() {
+                // Already in HTML, but we can add more dynamic content
+                this.messages.push({
+                    type: 'ai',
+                    content: 'Hello! I\'m your GPT4Free assistant. How can I help you today?'
+                });
+            }
+
+            sendMessage() {
+                const message = this.messageInput.value.trim();
+                if (!message || this.isTyping) return;
+
+                // Add user message
+                this.addMessage('user', message);
+                this.messageInput.value = '';
+                this.sendBtn.disabled = true;
+
+                // Simulate AI response
+                this.simulateAIResponse(message);
+            }
+
+            addMessage(type, content, isSystem = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${type}`;
+                
+                if (isSystem) {
+                    messageDiv.innerHTML = `
+                        <div class="message-content" style="background: rgba(255, 193, 7, 0.2); border-color: rgba(255, 193, 7, 0.4); text-align: center; max-width: 100%;">
+                            ${content}
+                        </div>
+                    `;
+                } else {
+                    const avatar = type === 'user' ? '👤' : '🤖';
+                    messageDiv.innerHTML = `
+                        <div class="message-avatar">${avatar}</div>
+                        <div class="message-content">${content}</div>
+                    `;
+                }
+
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+
+                this.messages.push({ type, content });
+            }
+
+            addSystemMessage(content) {
+                this.addMessage('system', content, true);
+            }
+
+            async simulateAIResponse(userMessage) {
+                this.isTyping = true;
+                this.showTypingIndicator();
+
+                try {
+                    // Try to call real G4F backend
+                    const response = await this.callG4FBackend(userMessage);
+                    this.hideTypingIndicator();
+                    this.addMessage('ai', response);
+                } catch (error) {
+                    // Fallback to demo responses
+                    console.log('G4F backend not available, using demo mode:', error);
+                    setTimeout(() => {
+                        this.hideTypingIndicator();
+                        const response = this.generateResponse(userMessage);
+                        this.addMessage('ai', response + ' <br><br><em style="opacity: 0.7; font-size: 0.9em;">⚠️ Demo mode: Connect G4F backend for real AI responses</em>');
+                        this.isTyping = false;
+                    }, 1500 + Math.random() * 2000);
+                    return;
+                }
+                
+                this.isTyping = false;
+            }
+
+            async callG4FBackend(userMessage) {
+                const messages = [
+                    { role: "system", content: "You're a helpful AI assistant powered by GPT4Free. Be concise and helpful." },
+                    { role: "user", content: userMessage }
+                ];
+
+                const requestBody = {
+                    messages: messages,
+                    options: {
+                        model: this.modelSelector.value || "gpt-4",
+                        debug: false,
+                        retry: {
+                            times: 2,
+                            condition: (text) => text.split(" ").length > 5
+                        }
+                    }
+                };
+
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data.text || data.response || 'Sorry, I couldn\'t generate a response.';
+            }
+
+            generateResponse(message) {
+                const responses = {
+                    greeting: [
+                        "Hello! Thanks for trying out GPT4Free! This is a demo interface showcasing what's possible with free AI access.",
+                        "Hi there! I'm excited to help you explore the capabilities of GPT4Free. What would you like to know?",
+                        "Greetings! Welcome to the future of free AI. How can I assist you today?"
+                    ],
+                    demo: [
+                        "This is a demonstration of the GPT4Free interface. In a real implementation, this would connect to the g4f library or API endpoints to provide actual AI responses.",
+                        "🚀 This demo shows how GPT4Free can be integrated into web applications. The actual AI responses would come from the g4f backend services.",
+                        "In a production version, this interface would connect to various free AI providers through the g4f library, giving you access to multiple models without API costs."
+                    ],
+                    features: [
+                        "GPT4Free offers access to multiple AI models including GPT-4, Claude, Gemini, and more - all without requiring API keys or payment!",
+                        "Key features include: No authentication needed, multiple model support, fast responses, and complete privacy protection.",
+                        "The beauty of GPT4Free is its simplicity - just install the library and start using powerful AI models immediately."
+                    ],
+                    technical: [
+                        "GPT4Free works by interfacing with various AI providers that offer free access. The library handles the complexity of connecting to different services.",
+                        "You can use GPT4Free in Python, JavaScript/TypeScript, or directly through web APIs. It supports both text generation and image creation.",
+                        "The project is open-source and community-maintained, ensuring transparency and continuous improvement."
+                    ],
+                    default: [
+                        "That's a great question! In a full implementation, this would be processed by actual AI models through the GPT4Free system.",
+                        "I'd love to help with that! This demo interface would normally send your query to real AI models via the g4f backend.",
+                        "Interesting! A production version of this chat would leverage multiple AI providers to give you the best possible response.",
+                        "Thanks for the message! This demonstrates how seamlessly GPT4Free can be integrated into chat interfaces."
+                    ]
+                };
+
+                const lower = message.toLowerCase();
+                
+                if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey')) {
+                    return this.randomFromArray(responses.greeting);
+                } else if (lower.includes('demo') || lower.includes('example') || lower.includes('test')) {
+                    return this.randomFromArray(responses.demo);
+                } else if (lower.includes('feature') || lower.includes('capability') || lower.includes('what can')) {
+                    return this.randomFromArray(responses.features);
+                } else if (lower.includes('how') || lower.includes('work') || lower.includes('technical')) {
+                    return this.randomFromArray(responses.technical);
+                } else {
+                    return this.randomFromArray(responses.default);
+                }
+            }
+
+            randomFromArray(arr) {
+                return arr[Math.floor(Math.random() * arr.length)];
+            }
+
+            showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message ai typing-indicator';
+                typingDiv.innerHTML = `
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        <div class="typing">
+                            <span>AI is thinking</span>
+                            <div class="typing-dots">
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                this.chatMessages.appendChild(typingDiv);
+                this.scrollToBottom();
+            }
+
+            hideTypingIndicator() {
+                const typingIndicator = this.chatMessages.querySelector('.typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+
+            scrollToBottom() {
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+        }
+
+        // Initialize the chat when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new GPT4FreeChat();
+
+            // Add some interactive animations
+            document.querySelectorAll('.feature').forEach((feature, index) => {
+                feature.style.animationDelay = `${index * 0.2}s`;
+                feature.style.animation = 'slideIn 0.6s ease-out forwards';
+            });
+
+            // Parallax effect for background shapes
+            document.addEventListener('mousemove', (e) => {
+                const shapes = document.querySelectorAll('.floating-shapes');
+                const x = e.clientX / window.innerWidth;
+                const y = e.clientY / window.innerHeight;
+
+                shapes.forEach((shape, index) => {
+                    const speed = (index + 1) * 0.5;
+                    const xOffset = (x - 0.5) * speed * 50;
+                    const yOffset = (y - 0.5) * speed * 50;
+                    shape.style.transform = `translate(${xOffset}px, ${yOffset}px)`;
+                });
+            });
+        });
+    </script>
+</body>
+              </html>
