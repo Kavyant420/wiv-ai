@@ -1,1 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* Netflix-Authentic Design System */
+
+@layer base {
+  :root {
+    /* Netflix Brand Colors - Exact matches */
+    --netflix-red: 229 9% 20%;
+    --netflix-red-bright: 0 100% 50%;
+    --netflix-black: 0 0% 8%;
+    --netflix-dark-gray: 0 0% 12%;
+    --netflix-gray: 0 0% 20%;
+    --netflix-light-gray: 0 0% 60%;
+    --netflix-white: 0 0% 100%;
+
+    /* Netflix Background System */
+    --background: 0 0% 8%;
+    --surface: 0 0% 12%;
+    --surface-elevated: 0 0% 16%;
+    --foreground: 0 0% 100%;
+    --foreground-muted: 0 0% 87%;
+    --foreground-subtle: 0 0% 60%;
+
+    /* Netflix Brand */
+    --brand-primary: 0 100% 50%;
+    --brand-hover: 0 100% 45%;
+    --brand-dark: 0 75% 35%;
+
+    /* Traditional shadcn mappings for compatibility */
+    --card: var(--surface);
+    --card-foreground: var(--foreground);
+    --popover: var(--surface-elevated);
+    --popover-foreground: var(--foreground);
+    --primary: var(--brand-primary);
+    --primary-foreground: var(--foreground);
+    --secondary: var(--surface-elevated);
+    --secondary-foreground: var(--foreground);
+    --muted: var(--surface);
+    --muted-foreground: var(--foreground-muted);
+    --accent: var(--surface-elevated);
+    --accent-foreground: var(--foreground);
+    --destructive: var(--brand-primary);
+    --destructive-foreground: var(--foreground);
+    --border: 0 0% 20%;
+    --input: var(--surface-elevated);
+    --ring: var(--brand-primary);
+    --radius: 0.25rem;
+
+    /* Sidebar */
+    --sidebar-background: var(--surface);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--brand-primary);
+    --sidebar-primary-foreground: var(--foreground);
+    --sidebar-accent: var(--surface-elevated);
+    --sidebar-accent-foreground: var(--foreground);
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: var(--brand-primary);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Netflix-style scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--foreground-subtle));
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--foreground-muted));
+  }
+
+  /* Hide scrollbar for Netflix-style horizontal scrolling */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
